@@ -6,12 +6,10 @@ import {
 	Button,
 	View,
 	Text,
-	Platform
+	Platform,
 } from "react-native";
 import firebase from "firebase";
-import link from 'react-native-vector-icons';
 import Icon from "react-native-vector-icons/Ionicons";
-
 
 import logo1 from "../../assets/logo1.png";
 
@@ -41,7 +39,7 @@ export default class ProfileScreen extends Component {
 						<Image source={logo1} />
 					</View>
 
-					<View>
+					<View style={{ display: "flex", flexDirection: "collumn-reverse" }}>
 						<Image
 							source={{
 								uri: user.photoURL
@@ -61,24 +59,42 @@ export default class ProfileScreen extends Component {
 						<Text style={{ textAlign: "center", color: "#2699FB" }}>
 							{location}
 						</Text>
-						<View>
-						<Icon
-							name={Platform.OS === "ios" ? "ios-link" : "md-link"}
-							style={{ textAlign: "center", fontWeight: "bold",color: "#2699FB", marginTop: '20%' }}
-							// name="ios-link"
-							color="#ccc"
-							size={25}
+						<View style={[styles.link, { position: "relative" }]}>
+							<Icon
+								name={Platform.OS === "ios" ? "ios-link" : "md-link"}
+								style={{
+									fontWeight: "bold",
+									color: "#2699FB",
+									marginRight: "2%"
+								}}
+								color="#ccc"
+								size={17}
 							/>
+							<Text style={{ color: "#2699FB", fontWeight: "bold" }}>
+								Repo Link
+							</Text>
 						</View>
-						
-						<Text style={styles.paragraph}>
+						<View style={{ flexDirection: "row"}}>
+							<View style={styles.aboutDev}>
+								<Text>First</Text>
+							</View>
+							<View style={styles.aboutDev}>
+								<Text>Second</Text>
+							</View>
+							<View style={styles.aboutDev}>
+								<Text>Third</Text>
+							</View>
+						</View>
+
+						{/* <Text style={styles.paragraph}>
 							Welcome {user.displayName || user.username || user.email}
-						</Text>
+						</Text> */}
 						<Button
 							title="Go Devs"
 							onPress={() => this.props.navigation.navigate("Devs")}
 							style={{
-								marginTop: "39%"
+								marginTop: 90,
+								backgroundColor: "red",
 							}}
 						/>
 						<Text style={styles.paragraph} onPress={signOutAsync}>
@@ -113,5 +129,20 @@ const styles = StyleSheet.create({
 	},
 	main: {
 		marginTop: "15%"
+	},
+	aboutDev: {
+		width: "30%",
+		color: "#2699FB",
+		backgroundColor: "#f1f9ff",
+		height: 80,
+		marginRight: "5%",
+		pasition: "relative",
+		
+	},
+	link: {
+		display: "flex",
+		flexDirection: "row",
+		justifyContent: "center",
+		marginTop: "10%"
 	}
 });

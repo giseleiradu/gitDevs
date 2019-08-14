@@ -11,7 +11,7 @@ import DevsScreen from "./src/screens/Devs";
 import initializeFirebase from "./utils/githubAuth";
 
 async function attemptToRestoreAuthAsync() {
-	let token = await AsyncStorage.getItem(GithubStorageKey);
+	let token = await AsyncStorage.getItem("@Expo:GithubToken");
 	if (token) {
 		return signInAsync(token);
 	}
@@ -29,13 +29,15 @@ export default class App extends React.Component {
 	signInAsync = async token => {
 		try {
 			const token = await getGithubTokenAsync();
+			if (token) {
+				await AsyncStorage.setItem("@Expo:GithubToken", token);
+				const credential = firebase.auth.GithubAuthProvider.credential(token);
 
-			const credential = firebase.auth.GithubAuthProvider.credential(token);
-
-			const firebaseData = firebase
-				.auth()
-				.signInAndRetrieveDataWithCredential(credential);
-			return firebaseData;
+				const firebaseData = firebase
+					.auth()
+					.signInAndRetrieveDataWithCredential(credential);
+				return firebaseData;
+			}
 		} catch ({ message }) {
 			alert(message);
 		}
@@ -63,9 +65,8 @@ export default class App extends React.Component {
 					<GithubButton onPress={() => this.signInAsync()} />
 				</View>
 			);
-			// return <LoginScreen />;
 		} else {
-			return <ProfileScreen />;
+			return <DevsScreen />;
 		}
 	}
 }
