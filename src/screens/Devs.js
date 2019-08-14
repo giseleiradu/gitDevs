@@ -8,28 +8,39 @@ import {
 	TouchableOpacity,
 	AsyncStorage
 } from "react-native";
-import { Navigation } from "react-native-navigation";
+import firebase from 'firebase';
 import { ApolloClient, HttpLink, InMemoryCache } from "apollo-boost";
 import { ApolloProvider, Query } from "react-apollo";
 
 import { usersQuery } from "./GraphQuery";
-import baseURL from "../../helpers/constants";
 import logo1 from "../../assets/logo1.png";
 import myAvatar from "../../assets/myAvatar.png";
-import GithubStorageKey from "../../helpers/constants";
+
+
+async function signOutAsync() {
+	try {
+		await AsyncStorage.clear();
+		await firebase.auth().signOut();
+	} catch ({ message }) {
+		alert("Error: " + message);
+	}
+}
 
 const initializeAppolo = token => {
 	const link = new HttpLink({
-		uri: baseURL,
+		uri: "https://api.github.com/graphql",
 		headers: {
 			authorization: `Bearer ${token}`
 		}
 	});
 	const cache = new InMemoryCache();
 	const client = new ApolloClient({ link, cache });
+	return client;
 };
 
 export default class DevsScreen extends Component {
+	static navigationOptions = { header: null };
+
 	state = {
 		client: null,
 		devs: [],
@@ -40,8 +51,8 @@ export default class DevsScreen extends Component {
 
 	async componentDidMount() {
 		let token = await AsyncStorage.getItem("@Expo:GithubToken");
-		console.log(token);
 		const client = initializeAppolo(token);
+		console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>', client);
 		this.setState({
 			client: client
 		});
@@ -49,65 +60,74 @@ export default class DevsScreen extends Component {
 
 	render() {
 		if (!this.state.client) {
-			return <Text>Loading...</Text>;
+			return <Text style={{ textAlign: 'center', marginTop: 70}}>Loading...</Text>;
 		} else {
 			return (
 				<ApolloProvider client={this.state.client}>
 					<View style={styles.container}>
 						<View style={styles.main}>
-							{/* <View style={{ flexDirection: "row" }}>
-							<Image source={logo1} />
-							<View style={{ justifyContent: "space-between" }}>
-								<TouchableOpacity onPress={() => this.moveToAddNewCustomer()}>
-									<Image style={styles.avatar} source={myAvatar} />
-								</TouchableOpacity>
-								
-								<Text
-									style={{
-										textAlign: "right",
-										marginRight: "25%",
-										color: "#2699FB"
-									}}
-								>
-									{" "}
-									@{user.uname}
-								</Text>
-							</View>
-						</View> */}
+							<View style={{ flexDirection: "row" }}>
+								<Image source={logo1} />
+								<View style={{ justifyContent: "space-between" }}>
+									<TouchableOpacity onPress={signOutAsync}>
+										<Image style={styles.avatar} source={myAvatar} />
+									</TouchableOpacity>
+									
+									<Text
+										style={{
+											textAlign: "right",
+											marginRight: "25%",
+											color: "#2699FB"
+										}}
+										onPress={signOutAsync}
+									>
+										Logout
+									</Text>
+								</View>
+						</View>
 							<Query query={usersQuery}>
 								{({ data, error, loading }) => {
-									console.log(data);
+									{/* console.log('=======================>', error); */}
 									if (loading) {
-										return <Text>Loading...</Text>;
+										return <Text style={{textAlign: 'center'}}>Loading...</Text>;
 									}
-									if (data.search) {
+									if (data) {
 										return (
 											<FlatList
 												style={{ marginTop: "17%" }}
 												data={data.search.nodes}
+												keyExtractor={(item, index) => index}
 												renderItem={({ item }) => (
-													<View style={styles.item}>
-														<Image
-															style={styles.profile}
-															source={{
-																uri: item.avatarUrl
-															}}
-														/>
-														<View style={styles.namesLocation}>
-															<Text style={{ color: "#2699FB" }}>
-																{item.name}
-															</Text>
-															<Text style={{ color: "#2699FB" }}>
-																{item.location}
-															</Text>
+													<TouchableOpacity
+														onPress={() =>
+															this.props.navigation.navigate("Profile", {
+																item: item
+															})
+														}
+													>
+														<View style={styles.item}>
+															<Image
+																style={styles.profile}
+																source={{
+																	uri: item.avatarUrl
+																}}
+															/>
+															<View style={styles.namesLocation}>
+																<Text style={{ color: "#2699FB" }}>
+																	{item.name}
+																</Text>
+																<Text style={{ color: "#2699FB", marginTop: 1 }}>
+																	{item.location}
+																</Text>
+															</View>
 														</View>
-													</View>
+													</TouchableOpacity>
 												)}
 											/>
 										);
 									}
 									if (error) {
-										return <Text>{error}</Text>;
+										return <Text>You might be having a network issue</Text>;
 									}
 								}}
 							</Query>
@@ -126,7 +146,7 @@ const styles = StyleSheet.create({
 	avatar: {
 		width: 50,
 		height: 50,
-		borderRadius: "20%",
+		borderRadius: 25,
 		marginLeft: "60%",
 		marginTop: "5%",
 		textAlign: "right"

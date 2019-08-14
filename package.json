@@ -13,6 +13,7 @@
     "babel-preset-react-native": "^5.0.2",
     "dotenv": "^8.0.0",
     "expo": "^34.0.1",
+    "expo-web-browser": "^6.0.0",
     "firebase": "^6.3.4",
     "graphql": "^14.4.2",
     "graphql-tag": "^2.10.1",
