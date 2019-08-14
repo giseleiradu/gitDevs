@@ -1,37 +1,39 @@
 import React, { Component } from "react";
 import {
+	Share,
 	AsyncStorage,
 	StyleSheet,
 	Image,
 	Button,
 	View,
 	Text,
-	Platform,
+	Platform
 } from "react-native";
 import firebase from "firebase";
 import Icon from "react-native-vector-icons/Ionicons";
+import * as WebBrowser from "expo-web-browser";
 
 import logo1 from "../../assets/logo1.png";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
-async function signOutAsync() {
+
+onShare = async (link, name) => {
 	try {
-		await AsyncStorage.clear();
-		await firebase.auth().signOut();
-	} catch ({ message }) {
-		alert("Error: " + message);
+		const result = await Share.share({
+			message: `Checkout ${name} GitHub profile: \n\n${link}`
+		});
+	} catch (error) {
+		alert(error.message);
 	}
-}
-export default class ProfileScreen extends Component {
-	state = {
-		user: {
-			uname: "Vera",
-			location: "Kigali - Rwanda"
-		}
-	};
+};
+viewProfile = async link => {
+	await WebBrowser.openBrowserAsync(link);
+};
 
+export default class ProfileScreen extends Component {
+	
 	render() {
-		const user = firebase.auth().currentUser || {};
-		const { uname, location } = this.state.user;
+		const item = this.props.navigation.getParam("item", () => {});
 		return (
 			<View style={styles.container}>
 				<View style={styles.main}>
@@ -39,10 +41,13 @@ export default class ProfileScreen extends Component {
 						<Image source={logo1} />
 					</View>
 
-					<View style={{ display: "flex", flexDirection: "collumn-reverse" }}>
+					<View style={{ 
+						display: "flex", 
+						flexDirection: "collumn-reverse" 
+						}}>
 						<Image
 							source={{
-								uri: user.photoURL
+								uri: item.avatarUrl
 							}}
 							style={styles.avatar}
 						/>
@@ -54,10 +59,10 @@ export default class ProfileScreen extends Component {
 							}}
 						>
 							{" "}
-							@{uname}
+							@{item.name}
 						</Text>
 						<Text style={{ textAlign: "center", color: "#2699FB" }}>
-							{location}
+							{item.location}
 						</Text>
 						<View style={[styles.link, { position: "relative" }]}>
 							<Icon
@@ -70,36 +75,28 @@ export default class ProfileScreen extends Component {
 								color="#ccc"
 								size={17}
 							/>
-							<Text style={{ color: "#2699FB", fontWeight: "bold" }}>
-								Repo Link
-							</Text>
+							<TouchableOpacity onPress={() => viewProfile(item.url)}>
+								<Text style={{ color: "#2699FB", fontWeight: "bold" }}>
+									View Account
+								</Text>
+							</TouchableOpacity>
 						</View>
-						<View style={{ flexDirection: "row"}}>
+						<View style={{ flexDirection: "row" }}>
 							<View style={styles.aboutDev}>
-								<Text>First</Text>
+								<Text>{item.starredRepositories.totalCount} Stars</Text>
 							</View>
 							<View style={styles.aboutDev}>
-								<Text>Second</Text>
-							</View>
-							<View style={styles.aboutDev}>
-								<Text>Third</Text>
+								<Text>{item.repositories.totalCount} Repositories</Text>
 							</View>
 						</View>
-
-						{/* <Text style={styles.paragraph}>
-							Welcome {user.displayName || user.username || user.email}
-						</Text> */}
 						<Button
-							title="Go Devs"
-							onPress={() => this.props.navigation.navigate("Devs")}
+							title="Share"
+							onPress={() => onShare(item.url, item.name)}
 							style={{
 								marginTop: 90,
-								backgroundColor: "red",
+								backgroundColor: "red"
 							}}
 						/>
-						<Text style={styles.paragraph} onPress={signOutAsync}>
-							Logout
-						</Text>
 					</View>
 				</View>
 			</View>
@@ -131,13 +128,12 @@ const styles = StyleSheet.create({
 		marginTop: "15%"
 	},
 	aboutDev: {
-		width: "30%",
+		width: "45%",
 		color: "#2699FB",
 		backgroundColor: "#f1f9ff",
 		height: 80,
 		marginRight: "5%",
-		pasition: "relative",
-		
+		pasition: "relative"
 	},
 	link: {
 		display: "flex",
