@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Git Devs App",
+    "slug": "gitDevs",
+    "privacy": "public",
+    "sdkVersion": "34.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F1F9FF"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "extra": {
+      "firebase": {
+        "apiKey": "AIzaSyB-QSVqwYWUSDi3hSNvyV-XD4Fj4E9UP8U",
+        "authDomain": "gitdevs.firebaseapp.com",
+        "databaseURL": "https://gitdevs.firebaseio.com",
+        "projectId": "gitdevs",
+        "storageBucket": "",
+        "messagingSenderId": "682925328056",
+      },
+      "github": {
+        "appId": "1:682925328056:web:17b99be1eda97e8c"
+      },
+    }
+  }
+}
